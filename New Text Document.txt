@@ -1,0 +1,42 @@
+ kaiserord FIR order estimator (lowpass, highpass, bandpass, multiband).
+    [N,Wn,BTA,FILTYPE] = kaiserord(F,A,DEV,Fs) is the approximate order N,
+    normalized frequency band edges Wn, Kaiser window beta parameter BTA
+    and filter type FILTYPE to be used by the FIR1 function:
+       B = FIR1(N, Wn, FILTYPE, kaiser( N+1,BTA ), 'noscale' )
+ 
+    The resulting filter will approximately meet the specifications given
+    by the input parameters F, A, and DEV.
+ 
+    F is a vector of band edge frequencies in Hz, in ascending order
+    between 0 and half the sampling frequency Fs.  A is a vector of 0s and
+    1s specifying the desired function's amplitude on the bands defined by
+    F. The length of F is twice the length of A, minus 2 (it must therefore
+    be even).  The first frequency band is assumed to start at zero, and
+    the last one always ends at Fs/2.
+ 
+    DEV is a vector of maximum deviations or ripples (in linear units)
+    allowable for each band. The smallest deviation specified (MIN(DEV)) is
+    used for both the passband and the stopband.
+ 
+    Fs is the sampling frequency (which defaults to 2 if you leave it off).
+ 
+    C = kaiserord(F,A,DEV,Fs,'cell') is a cell-array whose elements are the
+    parameters to FIR1.
+ 
+  % EXAMPLE
+  %     Design a lowpass filter with a passband edge of 1500Hz, a
+  %     stopband edge of 2000Hz, passband ripple of 0.01, stopband ripple
+  %     of 0.1, and a sampling frequency of 8000Hz:
+ 
+       [n,Wn,bta,filtype] = kaiserord( [1500 2000], [1 0], [0.01 0.1], 8000 );
+       b = fir1(n, Wn, filtype, kaiser(n+1,bta), 'noscale');
+ 
+  %     This is equivalent to
+       c = kaiserord( [1500 2000], [1 0], [0.01 0.1], 8000, 'cell' );
+       b = fir1(c{:});
+ 
+  %  CAUTION 1: The order N is just an estimate. If the filter does not
+  %  meet the original specifications, a higher order such as N+1, N+2, etc.
+  %  will; if the filter exceeds the specs, a slightly lower order one may work.
+  %  CAUTION 2: Results are inaccurate if cutoff frequencies are near zero
+  %  frequency or the Nyquist frequency; or if the devs are large (10%).
